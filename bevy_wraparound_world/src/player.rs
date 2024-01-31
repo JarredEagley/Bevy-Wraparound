@@ -39,7 +39,7 @@ impl Default for PlayerController {
 }
 
 pub fn update_player_controllers(
-    mut q_players: Query<(&mut LinearVelocity, &mut ExternalImpulse, &mut ExternalForce, &PlayerController ), With<PlayerController>>,
+    mut q_players: Query<(&mut LinearVelocity, &mut ExternalImpulse, &PlayerController, &Mass), With<PlayerController>>,
     input: Res<Input<KeyCode>>,
 ) {
     let mut input_x = 0.0;
@@ -58,8 +58,8 @@ pub fn update_player_controllers(
     for (
         player_vel, 
         mut player_impulse, 
-        _, 
         player_controller,
+        player_mass,
     ) in q_players.iter_mut() {
         if !grounded {
             continue;
@@ -69,12 +69,12 @@ pub fn update_player_controllers(
         let desired_x_vel = player_controller.walk_speed * input_x;
         let current_x_vel = player_vel.x;
         let x_vel_delta = desired_x_vel - current_x_vel;
-        player_impulse.apply_impulse(Vec2::new(x_vel_delta, 0.0));
+        player_impulse.apply_impulse(Vec2::new(x_vel_delta, 0.0) * player_mass.0);
 
         // println!("Desired: {}\nCurrent: {}\nDelta: {}", desired_x_vel, current_x_vel, x_vel_delta);
 
         if jump {
-            player_impulse.apply_impulse(Vec2::new(0.0, player_controller.jump_force));
+            player_impulse.apply_impulse(Vec2::new(0.0, player_controller.jump_force * player_mass.0));
         }
     }
 }

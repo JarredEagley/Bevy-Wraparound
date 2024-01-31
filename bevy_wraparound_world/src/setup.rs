@@ -63,8 +63,8 @@ pub fn setup_player(
     .insert(PlayerBundle {
         collider: Collider::cuboid(player_scale.x, player_scale.y),
         controller: PlayerController {
-            walk_speed: 100.0,
-            jump_force: 500.0,
+            walk_speed: 60.0,
+            jump_force: 50.0,
         },
         ..default()
     })
