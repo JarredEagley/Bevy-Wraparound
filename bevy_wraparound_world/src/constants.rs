@@ -1,0 +1,1 @@
+pub const WORLD_WIDTH: f32 = 500.0;
