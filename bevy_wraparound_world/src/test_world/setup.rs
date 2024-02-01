@@ -1,7 +1,16 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_xpbd_2d::prelude::*;
 
-use crate::{constants::WORLD_WIDTH, player::{PlayerBundle, PlayerController}, gravity_gun};
+use crate::{
+    player::{
+        PlayerBundle, 
+        PlayerController
+    },
+    gravity_gun, 
+    materials::BackgroundMaterial
+};
+
+use super::WorldWidth;
 
 
 /// Small helper function for spawning cuboids in a more streamlined manner.
@@ -28,12 +37,38 @@ fn spawn_box (
 }
 
 pub fn setup_world(
-    mut commands: Commands
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut mats_background: ResMut<Assets<BackgroundMaterial>>,
+    r_width: Res<WorldWidth>,
+    asset_server: Res<AssetServer>,
 ) {
-    let floor_scale = Vec3::new(WORLD_WIDTH, 100.0, 0.0);
-    let floor_translation = Vec3::new(WORLD_WIDTH*0.5, -50.0, 0.0);
+    let world_width = r_width.0;
 
-    spawn_box(&mut commands, floor_scale, floor_translation, Color::TEAL, RigidBody::Static);
+    let texture_brickwork: Handle<Image> = asset_server.load("textures/brickwork.png");
+
+    // Spawn the floor
+    let floor_scale = Vec3::new(world_width, 100.0, 0.0);
+    let floor_translation = Vec3::new(world_width*0.5, -50.0, 0.0);
+    // spawn_box(&mut commands, floor_scale, floor_translation, Color::TEAL, RigidBody::Static);
+    
+    
+    // Spawn the world background.
+    // Would best be handled in a separate render pass, but I'll figure that out later.
+    commands.spawn(
+        MaterialMesh2dBundle {
+            material: mats_background.add(BackgroundMaterial { 
+                color_bottom: Color::rgba(0.8, 0.85, 1.0, 1.0), 
+                color_top: Color::rgba(0.3, 0.2, 0.5, 0.5),
+                y_scalar: 0.1, 
+            }),
+            mesh: meshes.add(
+                shape::Quad::default().into()
+            ).into(),
+            transform: Transform::from_xyz(0.0, 0.0, -10.0),
+            ..default()
+        }
+    );
 }
 
 pub fn setup_props(
